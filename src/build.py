@@ -12,6 +12,7 @@ FIXED_ZIP_TIME=(2026, 10, 29, 0, 0, 0)
 
 def add(z, name, data, compress_type=zipfile.ZIP_DEFLATED):
     info=zipfile.ZipInfo(name, FIXED_ZIP_TIME)
+    info.create_system=3
     info.compress_type=compress_type
     info.external_attr=0o644 << 16
     z.writestr(info, data)

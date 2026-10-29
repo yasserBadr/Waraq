@@ -14,6 +14,7 @@ with zipfile.ZipFile(target,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as archive
         if not file.is_file():
             continue
         info=zipfile.ZipInfo('Waraq-Portable/'+file.name,FIXED_ZIP_TIME)
+        info.create_system=3
         info.compress_type=zipfile.ZIP_DEFLATED
         info.external_attr=0o644 << 16
         archive.writestr(info,file.read_bytes())
