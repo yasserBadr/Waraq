@@ -1,66 +1,113 @@
-ورق 1.3 — ملخص التحقق
-29 أكتوبر 2026
+Waraq 1.3 — Verification summary
+29 October 2026
 
-تم الاختبار في Google Chrome عبر خادم معاينة محلي على Windows.
+Tested in Google Chrome through a local preview server on Windows.
 
-نجح:
-- فتح كتاب عربي EPUB 3 وكتاب إنجليزي EPUB 2 من بيانات اختبار مضمّنة.
-- عرض النص العربي واتجاه RTL، واتجاه LTR للكتاب الإنجليزي.
-- تقليب الصفحات، وفهرس الفصول، والرابط الداخلي من فصل إلى فصل آخر.
-- البحث العربي وعرض النتائج من فصول متعددة.
-- إضافة إشارة مرجعية وعرضها.
-- استعادة آخر كتاب وموضع القراءة والإعدادات بعد إعادة تحميل الصفحة.
-- الوضع الليلي، وتغيير الخط وتباعد السطور وحجم النص.
-- وضع التركيز والخروج منه بزر Esc.
-- تخطيط بعرض 390 بكسل، وإظهار زر الفهرس على الواجهة الضيقة.
-- رسالة واضحة عند محاولة فتح بيانات ليست EPUB صالحًا.
-- تعطيل scripts وiframes وforms ومعالجات الأحداث داخل كتاب اختبار.
-  بقي إطار الكتاب sandbox="allow-same-origin" دون صلاحية تشغيل scripts.
-- فحص JavaScript للمكتبات والتطبيق دون أخطاء في البنية.
-- فحص التحقق من ملفات بيانات القراءة: رفض الملفات غير الصالحة، وضبط
-  قيم الإعدادات، والاحتفاظ بـ CFI والإشارات خلال تحويل JSON ذهابًا وإيابًا.
-- عدم وجود اعتماد على مكتبات أو خطوط من الإنترنت وقت التشغيل.
-- فحص Unicode للنص العربي الخاص بالواجهة: ترتيب منطقي دون محارف تحكم
-  اتجاهية مخفية. المظهر يعتمد على الخطوط المثبتة على الجهاز.
+Passed
+------
+- Opened an Arabic EPUB 3 book and an English EPUB 2 book from bundled test data.
+- Rendered Arabic text in RTL and the English book in LTR.
+- Paged forward and backward; used the chapter table of contents and an internal
+  link from one chapter to another.
+- Searched Arabic text and displayed results from multiple chapters.
+- Added a bookmark and displayed it in the bookmarks pane.
+- Restored the last book, reading position, and settings after a page reload.
+- Switched to dark mode and changed the font, line height, and text size.
+- Entered and exited focus mode with Esc.
+- Checked a 390 px wide layout and the sidebar toggle on the narrow layout.
+- Showed a clear message when opening a file that is not a valid EPUB.
+- Disabled scripts, iframes, forms, and event handlers inside a test book.
+  The book frame kept sandbox="allow-same-origin" without script execution.
+- Parsed all bundled JavaScript libraries and application code without syntax
+  errors.
+- Validated reading-data imports: malformed files are rejected, settings are
+  bounded, and CFIs and bookmarks survive a JSON round trip.
+- Confirmed that the runtime does not depend on libraries or fonts from the
+  internet.
+- Checked the Arabic interface source for logical Unicode order without hidden
+  bidi control characters. Rendering depends on fonts installed on the device.
 
-حدود التحقق:
-- لم يُختبر الفتح المباشر بعنوان file:// بأداة المتصفح؛ سياسة أداة
-  الاختبار لا تسمح بهذا البروتوكول. جرى اختبار المحتوى نفسه عبر localhost.
-- لم يكتمل الاختبار الآلي لاختيار ملف من نافذة النظام؛ إضافة المتصفح
-  لا تملك صلاحية الوصول إلى الملفات. لم تُغيَّر صلاحيات الإضافة.
-- واجهة اختيار الملف واستيراد JSON والتصدير والسحب والإفلات وملء الشاشة
-  تحتاج تحققًا يدويًا في متصفح المستخدم. تحقق منطق بيانات JSON برمجيًا.
-- لم تُختبر جميع ملفات EPUB أو جميع التخطيطات الثابتة أو متصفحات أخرى.
-- الحجم المذكور هو حجم الملف على القرص، وليس استهلاك ذاكرة المتصفح.
+Limits of this verification
+---------------------------
+- Direct file:// opening was not automated in the browser tool because that
+  protocol was not available; the same content was tested through localhost.
+- The native file picker was not automated. Test files were injected through
+  the page's demo data instead. Browser permissions were not changed.
+- Manual checks are still required for the file picker, JSON import/export,
+  drag and drop, and fullscreen in the user's browser. JSON validation logic
+  was tested programmatically.
+- Not every EPUB file, fixed layout, or browser was tested.
+- Sizes reported below are file sizes on disk, not browser memory use.
 
-تحقق التحديث 1.1:
-- نُفذت الاختبارات الأساسية أعلاه في الإصدار 1.0؛ اختُبر تحديث شكل الصفحة
-  في Chrome عبر معاينة محلية على Windows.
-- صفحة A4: نحو 499.90 × 707 بكسل على شاشة الاختبار، بنسبة 0.70707 تقريبًا.
-- عند عرض نافذة بعرض 390 بكسل: 374 × 528.94 بكسل، مع بقاء الصفحة كاملة
-  داخل النافذة والحفاظ على نسبة 210 إلى 297.
-- نجح التبديل بين A4 وملء مساحة القراءة، وتقليب الصفحات بعد تغيير النمط.
+Version 1.1 checks
+------------------
+- The core tests above were run for 1.0; the page-layout update was tested in
+  Chrome through a local preview on Windows.
+- A4 page: approximately 499.90 x 707 px on the test display, ratio about
+  0.70707.
+- At a 390 px window width: 374 x 528.94 px, with the whole page inside the
+  window and the 210:297 ratio preserved.
+- Switching between A4 and screen-sized pages worked, and page turning still
+  worked after changing the layout.
 
-تحقق التحديث 1.2:
-- ضُبط ارتفاع التطبيق من المساحة المرئية الفعلية مع إعادة الحساب عند
-  تغيير حجم النافذة، ومنع محتوى الكتاب من توسيع مساحة العرض.
-- أضيف زر «ملاءمة الصفحة» وزر إظهار/إخفاء الفهرس على جميع أحجام النوافذ.
-- فُحصت الحدود بعد اكتمال إعادة التخطيط، لا في الإطار الانتقالي لتغيير الحجم.
-- في نافذة 1366 × 768: ظهرت الورقة كاملة بنسبة A4، نحو 402 × 568.54 بكسل.
-- في نافذة 390 × 500: ظهرت الورقة كاملة، نحو 255 × 360.64 بكسل.
-- في نافذة قصيرة 1024 × 360: ظهرت الورقة كاملة، نحو 156 × 220.63 بكسل.
-- بقيت الورقة أعلى أزرار التنقل في الحالات الثلاث. لم تظهر أخطاء JavaScript
-  أثناء اختبار العرض وتغيير الحجم في هذا التحديث.
+Version 1.2 checks
+------------------
+- The app height was tied to the actual visual viewport and recalculated on
+  resize; book content could no longer expand the view area.
+- Added the fit-page button and the sidebar toggle at all window sizes.
+- Checked bounds after layout completed, not during the resize transition.
+- At 1366 x 768: the A4 sheet appeared complete at about 402 x 568.54 px.
+- At 390 x 500: the sheet appeared complete at about 255 x 360.64 px.
+- At a short 1024 x 360 window: the sheet appeared complete at about
+  156 x 220.63 px.
+- The sheet stayed above the navigation buttons in all three cases. No
+  JavaScript errors appeared during rendering or resizing in this update.
 
-تحقق التحديث 1.3:
-- فُحصت ملفات العرض العامة في https://epub-reader.online/، وتبيّن أن
-  الموقع يستخدم التمرير الرأسي للفصل مع ملء مساحة القراءة (scrolled-doc).
-- جرى عرض هذا النمط في Chrome محليًا بكتاب عربي تجريبي. ظهرت مساحة واسعة
-  قابلة للتمرير، مع محتوى أطول من ارتفاع منطقة القراءة وإتاحة بقية الفصل.
-- أضيف منع شريط التمرير الأفقي وإمكانية التركيز على منطقة النص بلوحة المفاتيح.
-  تعذّرت إعادة المعاينة البصرية بعد هذا التعديل الأخير لأن أداة التحكم في
-  المتصفح أصبحت غير متاحة. لم يُستبدل ذلك بادعاء اكتمال التحقق البصري.
-- نجحت اختبارات منطقية على دوال التطبيق الفعلية: ترحيل الإعدادات القديمة
-  إلى التمرير، والاحتفاظ باختيار A4 الجديد، والتنقل بين الفصول في وضع
-  التمرير، وتمرير PageDown وEnd داخل الفصل بدل الانتقال إلى فصل آخر.
-- لم يُرفع كتاب إلى الموقع المرجعي؛ استُخدم كوده العام لفهم طريقة العرض.
+Version 1.3 checks
+------------------
+- Reviewed the public reader at https://epub-reader.online/ and found that it
+  uses vertical chapter scrolling with the reading area filled (scrolled-doc).
+- Reproduced that mode in Chrome locally with an Arabic demo book. The reading
+  area was wide and scrollable, with content longer than the viewport, and the
+  rest of the chapter remained reachable.
+- Removed the horizontal scrollbar and made the text area keyboard-focusable.
+- The final visual preview after that change was not repeated because the
+  browser control tool became unavailable. This document does not claim that
+  the visual check was completed.
+- Logic tests against the application's own functions passed: old settings
+  migrate to scrolling, a new A4 preference persists, chapter navigation works
+  in scroll mode, and PageDown/End scroll inside the chapter instead of
+  jumping to another chapter.
+- No book was uploaded to the reference website; its public code was used only
+  to understand the layout approach.
+
+Version 1.3 documentation update
+--------------------------------
+- Rebuilt the project with deterministic ZIP timestamps. Repeated builds now
+  produce the same Waraq.html, Sample-Arabic.epub, and release ZIP hashes.
+- Added automated checks for the English page title, inline favicon, version
+  placeholder, and the absence of remote stylesheets.
+- Added a README screenshot captured from the built welcome screen at a
+  1000 x 700 viewport in the in-app Chromium browser.
+- The demo book's reading view could not be captured in that browser session:
+  EPUB.js display timed out with the message "تعذّر عرض صفحات هذا الكتاب".
+  The same result occurred with the previously built 1.3 package, so this is
+  an environment limitation, not a regression from the documentation update.
+  The reading view still needs a manual check in Chrome or Edge.
+
+ملخص عربي
+---------
+تم الاختبار في Google Chrome عبر خادم معاينة محلي على Windows. نجح فتح كتاب
+عربي EPUB 3 وكتاب إنجليزي EPUB 2، وعرض النص في الاتجاهين، وتقليب الصفحات،
+والفهرس، والرابط الداخلي، والبحث، والإشارات المرجعية، واستعادة الموضع
+والإعدادات، والأوضاع الليلية والتركيز، والتخطيط بعرض 390 بكسل، ورفض الملفات
+غير الصالحة، وتعطيل البرامج والموارد الخارجية داخل كتاب الاختبار.
+
+لم تُختبر نافذة اختيار الملف الأصلية آليًا، ولا السحب والإفلات، ولا التصدير
+والاستيراد يدويًا، ولا جميع ملفات EPUB أو المتصفحات. جرى التحقق من منطق
+بيانات JSON برمجيًا. لا يدعم القارئ PDF أو MOBI أو إزالة حماية DRM.
+
+في تحديث 1.3 أصبح البناء قابلًا لإعادة الإنتاج: تواريخ ZIP ثابتة، وتُنتج
+البنية نفسها ملفات متطابقة. تعذّرت إعادة المعاينة البصرية لوضع قراءة الكتاب
+في جلسة المتصفح الأخيرة بسبب مهلة عرض EPUB.js، وتكرر ذلك مع الحزمة السابقة،
+لذلك يلزم التحقق اليدوي من شاشة القراءة في Chrome أو Edge.
