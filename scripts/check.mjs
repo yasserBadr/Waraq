@@ -1,0 +1,62 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const root=path.dirname(fileURLToPath(import.meta.url));
+const html=fs.readFileSync(path.resolve(root,'../dist/Waraq.html'),'utf8');
+const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
+assert.equal(scripts.length,3);
+for(const script of scripts)new vm.Script(script);
+const app=scripts[2];
+const context=vm.createContext({});
+vm.runInContext(app.slice(app.indexOf('function safeSettings'),app.indexOf('function persist')),context);
+assert.throws(()=>context.validateData({version:2,books:{}}));
+assert.throws(()=>context.validateData({version:1,books:[]}));
+assert.throws(()=>context.validateData(null));
+const id='a'.repeat(64),cfi='epubcfi(/6/2!/4/2/1:0)';
+const clean=context.validateData({version:1,settings:{fontSize:100,theme:'bad',font:'invalid',lineHeight:99},books:{[id]:{title:'كتاب EPUB 3',cfi,percent:150,marks:[{cfi,label:'موضع مهم'},{cfi:'javascript:alert(1)'}]},'__invalid__':{cfi}}});
+assert.equal(clean.settings.fontSize,32);
+assert.equal(clean.settings.theme,'light');
+assert.equal(clean.settings.font,'serif');
+assert.equal(clean.settings.lineHeight,'1.8');
+assert.equal(clean.settings.page,'scroll');
+assert.equal(context.safeSettings({page:'a4'}).page,'scroll');
+assert.equal(context.safeSettings({page:'a4',viewVersion:2}).page,'a4');
+assert.equal(Object.keys(clean.books).length,1);
+assert.equal(clean.books[id].cfi,cfi);
+assert.equal(clean.books[id].percent,100);
+assert.equal(clean.books[id].marks.length,1);
+const roundTrip=context.validateData(JSON.parse(JSON.stringify(clean)));
+assert.equal(roundTrip.books[id].marks[0].label,'موضع مهم');
+assert.equal(context.validCFI('x'.repeat(4001)),false);
+assert.ok(html.includes('allowScriptedContent:false'));
+assert.ok(html.includes('connect-src blob: data:'));
+assert.ok(!html.includes('__DEMO_EPUB__'));
+assert.ok(!/<script[^>]+src=/i.test(html));
+assert.ok(!/<link[^>]+href=/i.test(html));
+const ownSource=fs.readFileSync(path.resolve(root,'../src/index.html'),'utf8');
+assert.ok(!/[\u202a-\u202e\u2066-\u2069\u200e\u200f\u061c]/u.test(ownSource));
+const calls=[];
+const chapters=['first.xhtml','middle.xhtml','last.xhtml'].map((href,index)=>({href,next:()=>chapters[index+1]||null,prev:()=>chapters[index-1]||null}));
+const navigation=vm.createContext({
+ state:{settings:{page:'scroll'}},opening:false,lastLocation:{start:{index:1},atStart:false,atEnd:false},
+ book:{spine:{get:index=>chapters[index]}},
+ rendition:{display:async href=>calls.push(['display',href]),next:async()=>calls.push(['next']),prev:async()=>calls.push(['prev'])},
+ notice:message=>{throw Error(message);}
+});
+vm.runInContext('let turning=false;\n'+app.slice(app.indexOf('async function turn('),app.indexOf('async function searchBook(')),navigation);
+await navigation.turn(true);await navigation.turn(false);
+assert.deepEqual(calls,[['display','last.xhtml'],['display','first.xhtml']]);
+navigation.lastLocation.start.index=2;await navigation.turn(true);assert.equal(calls.length,2);
+navigation.state.settings.page='a4';await navigation.turn(true);assert.deepEqual(calls[2],['next']);
+navigation.state.settings.page='scroll';
+const scrollCalls=[];const area={clientHeight:600,scrollHeight:3000,scrollBy:options=>scrollCalls.push(options.top),scrollTo:options=>scrollCalls.push(options.top)};
+navigation.document={querySelector:()=>null};navigation.$=()=>({querySelector:()=>area});
+const keyStart=app.indexOf('function handleKey(');
+vm.runInContext(app.slice(keyStart,app.indexOf("document.querySelectorAll('[data-pane]')",keyStart)),navigation);
+navigation.handleKey({key:'PageDown',target:{tagName:'DIV'},preventDefault(){}});
+navigation.handleKey({key:'End',target:{tagName:'DIV'},preventDefault(){}});
+assert.deepEqual(scrollCalls,[510,3000]);assert.equal(calls.length,3);
+console.log('PASS: 3 scripts parse; malformed imports rejected; settings bounded; CFI and bookmarks round-trip; no remote dependencies; Arabic source uses logical Unicode.');
+console.log('PASS: old settings migrate to scrolling; new A4 preference persists; scrolling navigation changes sections; PageDown and End scroll within the section.');
