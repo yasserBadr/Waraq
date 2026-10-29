@@ -4,6 +4,11 @@
 
 One HTML file. No install, no server, no account, no tracking.
 
+[![CI](https://github.com/yasserBadr/Waraq/actions/workflows/ci.yml/badge.svg)](https://github.com/yasserBadr/Waraq/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/yasserBadr/Waraq?color=315f8b)](https://github.com/yasserBadr/Waraq/releases/latest)
+![Offline](https://img.shields.io/badge/network-none-success)
+![Single file](https://img.shields.io/badge/app-one%20HTML%20file-315f8b)
+
 [**Open the reader**](https://yasserbadr.github.io/Waraq/) · [Download the latest release](https://github.com/yasserBadr/Waraq/releases/latest) · [Changelog](CHANGELOG.md) · [العربية](#العربية)
 
 ![Waraq welcome screen](docs/preview.png)
@@ -131,6 +136,8 @@ python -m http.server 8000 --directory dist
 ```
 
 The build is deterministic: fixed ZIP timestamps make the EPUB, the HTML file, and the release ZIP byte-for-byte reproducible. CI rebuilds the project and fails if `dist/` differs from the committed output.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the review guidelines and the expected test steps.
 
 ### Tests
 
